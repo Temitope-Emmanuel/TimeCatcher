@@ -10,6 +10,7 @@ var express                 = require("express"),
 
 mongoose.connect("mongodb://127.0.0.1/time", { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended:true}))
+app.use(express.static(__dirname + "/public"));
 app.set("view engine","ejs")
 
 // PASSPORT CONFIG 
@@ -46,6 +47,17 @@ app.post("/register",function(req,res){
             })
         }
     })
+})
+
+app.get("/login",function(req,res){
+    res.render("../views/login")
+})
+
+app.post("/login",passport.authenticate("local",{
+    successRedirect:"/login",
+    failureRedirect:"/register"
+}),function(req,res){
+
 })
 
 app.listen(3000,function(){
