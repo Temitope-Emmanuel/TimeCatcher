@@ -11,8 +11,9 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="/register">Register</a> </li>
                         <li><a href="/Login">Login</a> </li>
+                        <li><a href="/Logout">Logout</a> </li>
                        <% if(currentUser){ %>
-                            <li><a href="#">currently signed in as <%=currentUser%></a> </li>
+                            <li><a href="#">currently signed in as <%=currentUser.username%></a> </li>
                        <% } %>
                     </ul>
                 </div>

@@ -28,13 +28,27 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req,res,next){
-    res.locals.currentUser = req.user
-    next()
+    res.locals.currentUser = req.user;
+    next();
 })
 
 // LANDING PAGE
 app.get("/",function(req,res){
-    res.redirect("/register")
+    res.redirect("/home")
+})
+
+app.get("/home",function(req,res){
+    res.render("../views/landing")
+})
+
+app.get("/user/:id",function(req,res){
+   User.findById(req.params.id,function(err,foundUser){
+       if(err){
+           console.log(err)
+       }else{
+           res.render("users",{user:foundUser})
+       }
+   })
 })
 
 app.get("/register",function(req,res){
@@ -48,7 +62,7 @@ app.post("/register",function(req,res){
             console.log(err)
         }else{
             passport.authenticate("local")(req,res, function(){
-                console.log("this is " + currentUser)
+                console.log(new Date().getHours )
                 res.redirect("/register") 
             })
         }
@@ -60,9 +74,13 @@ app.get("/login",function(req,res){
 })
 
 app.post("/login",passport.authenticate("local",{
-    successRedirect:"/login",
+    successRedirect:"/home",
     failureRedirect:"/register"
 }),function(req,res){
+})
+app.get("/logout",function(req,res){
+    req.logout()
+    res.redirect("/home")
 })
 
 app.listen(3000,function(){
