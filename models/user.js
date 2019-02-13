@@ -11,7 +11,8 @@ userSchema.plugin(passportLocalMongoose);
 var User = mongoose.model("User",userSchema);
 
 var dailySchema = new mongoose.Schema({
-    time:Number,
+    timeIn:Number,
+    timeOut:Number,
     user:{
         id:{
             type:mongoose.Schema.Types.ObjectId,

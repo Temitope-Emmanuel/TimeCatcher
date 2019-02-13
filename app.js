@@ -6,7 +6,7 @@ var express                 = require("express"),
     LocalStrategy           = require("passport-local"),
     myFunction              = require("./models/user"),
     User                    = myFunction.User,
-    Daily                    = myFunction.Daily
+    Daily                   = myFunction.Daily
     
 mongoose.connect("mongodb://127.0.0.1/time", { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended:true}))
@@ -29,6 +29,7 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req,res,next){
     res.locals.currentUser = req.user;
+    res.locals.cuurentId 
     next();
 })
 
@@ -43,7 +44,7 @@ app.get("/home",function(req,res){
 
 app.get("/user/:id",function(req,res){
     var schema ={
-        time:Date.now(),
+        timeIn:Date.now(),
     }
    User.findById(req.params.id,function(err,user){
        if(err){
@@ -56,7 +57,6 @@ app.get("/user/:id",function(req,res){
                     time.user.id = req.user._id
                     time.user.username = req.user.username
                     time.save()
-                    console.log(time)
                     res.render("../views/users",{time:time})
                }
            })
@@ -75,7 +75,7 @@ app.post("/register",function(req,res){
             console.log(err)
         }else{
             passport.authenticate("local")(req,res, function(){
-                res.redirect("/register") 
+                res.redirect("/") 
             })
         }
     })
@@ -90,9 +90,18 @@ app.post("/login",passport.authenticate("local",{
     failureRedirect:"/register"
 }),function(req,res){
 })
-app.get("/logout",function(req,res){
-    req.logout()
-    res.redirect("/home")
+app.post("/logout",function(req,res){
+    var time = req.body.time
+    Daily.findById(time,function(err,foundDaily){
+        if(err){
+            console.log(err)
+        }else{
+              foundDaily.timeOut = Date.now()
+              console.log(foundDaily)
+              req.logout()
+              res.redirect("/")
+        }
+    })  
 })
 
 app.listen(3000,function(){

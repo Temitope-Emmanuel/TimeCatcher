@@ -4,9 +4,10 @@
     <p>Welcome to your userpage <%=currentUser.username%></p> 
 </div>
 <div>
-    <% if(currentUser){ %>
-    <%=new Date().toDateString%>
-    <% }%>
+    <form method="POST" action ="/logout" >
+        <input type="text" name="time" value=<%=time._id%> >
+    <button class="btn btn-warning" >Logout</button>
+    </form>
 </div>
 
 <%include ./partials/footer%>
