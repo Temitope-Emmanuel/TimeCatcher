@@ -5,9 +5,9 @@ var express                 = require("express"),
     passport                = require("passport"),
     LocalStrategy           = require("passport-local"),
     myFunction              = require("./models/user"),
-    User                    = myFunction.User
-
-
+    User                    = myFunction.User,
+    Daily                    = myFunction.Daily
+    
 mongoose.connect("mongodb://127.0.0.1/time", { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(express.static(__dirname + "/public"));
@@ -42,11 +42,24 @@ app.get("/home",function(req,res){
 })
 
 app.get("/user/:id",function(req,res){
-   User.findById(req.params.id,function(err,foundUser){
+    var schema ={
+        time:Date.now(),
+    }
+   User.findById(req.params.id,function(err,user){
        if(err){
            console.log(err)
        }else{
-           res.render("users",{user:foundUser})
+           Daily.create(schema,function(err,time){
+               if(err){
+                   console.log(err)
+               }else{
+                    time.user.id = req.user._id
+                    time.user.username = req.user.username
+                    time.save()
+                    console.log(time)
+                    res.render("../views/users",{time:time})
+               }
+           })
        }
    })
 })
@@ -62,7 +75,6 @@ app.post("/register",function(req,res){
             console.log(err)
         }else{
             passport.authenticate("local")(req,res, function(){
-                console.log(new Date().getHours )
                 res.redirect("/register") 
             })
         }

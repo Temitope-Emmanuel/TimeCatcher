@@ -3,9 +3,9 @@
 <h1>this is the landing page</h1>
 <% if(currentUser){ %>
     <%=console.log(currentUser) %>
-    <button class="btn btn-warning"><a href="/user/<%=currentUser._id%>">Go to userpage</a> </button>
+    <button class="btn color btn-warning"><a href="/user/<%=currentUser._id%>">Go to userpage</a> </button>
 <% }else{ %>
-    <button class="btn btn-warning"><a href="/login">Login</a> </button>
+    <button class="btn color btn-warning"><a href="/login">Login</a> </button>
 <% }%>
 
 <% include ./partials/footer%>
