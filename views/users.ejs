@@ -4,4 +4,11 @@
     <p>Welcome to your userpage <%=currentUser.username%></p> 
 </div>
 
+<%User.forEach(function(timer){%>
+    <% var timing = new Date(timer.timeIn) %>
+    <% var timingOut = new Date(timer.timeOut) %>
+    <p>Timed in at :<%=timing.toTimeString()%></p>
+    <p>Timed out at : <%=timingOut.toTimeString()%></p>
+<%})%>
+
 <%include ./partials/footer%>

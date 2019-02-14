@@ -46,27 +46,25 @@ app.get("/user/:id",function(req,res){
     var schema ={
         timeIn:new Date(Date.now()),
     }
-   User.findById(req.params.id,function(err,user){
-       if(err){
-           console.log(err)
-       }else{
-           if(schema.timeIn.getDay() >= 5){
-               console.log("unable to login on weekends")
-           } else {
-                Daily.create(schema,function(err,time){
-                    if(err){
-                        console.log(err)
-                    }else{
-                        time.user.id = req.user._id
-                        time.user.username = req.user.username
-                        time.save()
-                        global.seq = time._id
-                        res.render("../views/users",{time:time})
-                    }
-                })
-           }
-       }
-   })
+    Daily.create(schema, function (err, time) {
+        if (err) {
+            console.log(err)
+        } else {
+            time.user.id = req.user._id
+            time.user.username = req.user.username
+            time.save()
+            global.seq = time._id
+            var username = time.user._id
+            Daily.find(username, function (err, foundUser) {
+                if (err) {
+                    console.log(err)
+                } else {
+                    res.render("../views/users", { time: time, User: foundUser })
+                }
+            })
+
+        }
+    })
 })
 
 app.get("/register",function(req,res){
