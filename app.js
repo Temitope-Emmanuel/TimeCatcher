@@ -44,22 +44,27 @@ app.get("/home",function(req,res){
 
 app.get("/user/:id",function(req,res){
     var schema ={
-        timeIn:Date.now(),
+        timeIn:new Date(Date.now()),
     }
    User.findById(req.params.id,function(err,user){
        if(err){
            console.log(err)
        }else{
-           Daily.create(schema,function(err,time){
-               if(err){
-                   console.log(err)
-               }else{
-                    time.user.id = req.user._id
-                    time.user.username = req.user.username
-                    time.save()
-                    res.render("../views/users",{time:time})
-               }
-           })
+           if(schema.timeIn.getDay() >= 5){
+               console.log("unable to login on weekends")
+           } else {
+                Daily.create(schema,function(err,time){
+                    if(err){
+                        console.log(err)
+                    }else{
+                        time.user.id = req.user._id
+                        time.user.username = req.user.username
+                        time.save()
+                        global.seq = time._id
+                        res.render("../views/users",{time:time})
+                    }
+                })
+           }
        }
    })
 })
@@ -90,13 +95,14 @@ app.post("/login",passport.authenticate("local",{
     failureRedirect:"/register"
 }),function(req,res){
 })
-app.post("/logout",function(req,res){
-    var time = req.body.time
-    Daily.findById(time,function(err,foundDaily){
+
+app.get("/logout",function(req,res){
+    var id = global.seq
+    Daily.findById(id,function(err,foundDaily){
         if(err){
             console.log(err)
         }else{
-              foundDaily.timeOut = Date.now()
+              foundDaily.timeOut = new Date(Date.now())
               console.log(foundDaily)
               req.logout()
               res.redirect("/")
