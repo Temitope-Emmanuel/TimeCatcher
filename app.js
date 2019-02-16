@@ -64,36 +64,30 @@ app.get("/user/:id",function(req,res){
 
     if(checker2){
         var x = 5 
-        if (x = !x) {
-            return res.redirect("/user/" + req.params.id + "/home")
-        } else {
-            var checker = checker.toString()
-            var checker3 = checker2.toString()
-            console.log(checker + " " + checker3)
-            if (checker < checker3) {
-                console.log("no problem here")
-                var schema = {
-                    timeIn: global.userIn,
+        var checker = checker.toString()
+        var checker3 = checker2.toString()
+        console.log(checker + " " + checker3)
+        if (x = !x && checker < checker3) {
+            console.log("no problem here")
+            var schema = {
+                timeIn: global.userIn,
+            }
+            Daily.create(schema, function (err, time) {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("almost done")
+                    time.user.id = global.username001
+                    time.user.username = req.user.username
+                    time.save()
+                    global.seq = time._id
+                    res.redirect("/user/" + req.params.id + "/home")
                 }
-                Daily.create(schema, function (err, time) {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log("almost done")
-                        time.user.id = global.username001
-                        time.user.username = req.user.username
-                        time.save()
-                        global.seq = time._id
-                        res.redirect("/user/" + req.params.id + "/home")
-                    }
-                })
-            } else {
-                res.redirect("/user/" + req.params.id + "/home")            }
-        }
-    }else{
-        res.redirect("/user/" + req.params.id + "/home")
+            })
+        } else {
+            res.redirect("/user/" + req.params.id + "/home")
     }
-})
+}})
 
 app.get("/user/:id/home",function(req,res){
     Daily.find({"user.id":req.user._id},function(err,foundUser){
@@ -180,6 +174,10 @@ app.get("/logout",function(req,res){
         })
     }
 })
+function logout(){
+    req.logout()
+    res.redirect("/")
+}
 
 app.listen(3000,function(){
     console.log("in the beginning")
