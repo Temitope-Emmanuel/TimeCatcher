@@ -43,26 +43,52 @@ app.get("/home",function(req,res){
 })
 
 app.get("/user/:id",function(req,res){
-    var schema ={
-        timeIn:new Date(Date.now()),
-    }
-    Daily.create(schema, function (err, time) {
-        if (err) {
-            console.log(err)
-        } else {
-            time.user.id = req.user._id
-            time.user.username = req.user.username
-            time.save()
-            global.seq = time._id
-            var username = time.user._id
-            Daily.find(username, function (err, foundUser) {
-                if (err) {
-                    console.log(err)
-                } else {
-                    res.render("../views/users", { time: time, User: foundUser })
-                }
-            })
+    global.userIn = new Date(Date.now())
+    global.username001 = req.user._id
 
+    if(global.userIn.getDay() > 7){
+       return res.redirect("/user/" + req.params.id + "/home")
+    } else {
+        var schema ={
+        timeIn:global.userIn,
+        }
+
+        Daily.create(schema, function (err, time) {
+            if (err) {
+                console.log(err)
+            } else {
+                time.user.id = global.username001
+                time.user.username = req.user.username
+                time.save()
+                global.seq = time._id
+                res.redirect("/user/" + req.params.id + "/home")
+            }
+        })
+    }
+    
+})
+
+app.get("/user/:id/home",function(req,res){
+    Daily.find({"user.id":req.user._id},function(err,foundUser){
+        if(err){
+            console.log(err)
+        }else{
+            res.render("../views/users",{User:foundUser})
+        }
+    })
+})
+
+app.post("/change", function (req, res) {
+    var timedIn = req.body.timedInHours +":" + req.body.timedInSeconds
+    var timedOut = req.body.timedOutHours +":" + req.body.timedOutSeconds
+    Daily.find({"user.username":"Admin"},function(err,foundUser){
+        if(err){
+            console.log(err)
+        }else{
+            foundUser.recTimedIn = timedIn
+            foundUser.recTimedOut = timedOut
+            console.log("this is the change route" +  foundUser)
+            res.redirect("back")
         }
     })
 })
@@ -95,17 +121,26 @@ app.post("/login",passport.authenticate("local",{
 })
 
 app.get("/logout",function(req,res){
-    var id = global.seq
-    Daily.findById(id,function(err,foundDaily){
-        if(err){
-            console.log(err)
-        }else{
-              foundDaily.timeOut = new Date(Date.now())
-              console.log(foundDaily)
-              req.logout()
-              res.redirect("/")
+    if(!global.seq){
+        req.logout()
+        res.redirect("/")
+    } else {
+        var schema ={
+        timeIn:global.userIn,
+        timeOut: new Date(Date.now())
         }
-    })  
+        Daily.findOneAndUpdate({"_id":global.seq},schema,function(err,foundDaily){
+            if(err){
+                console.log(err)
+            }else{
+                    foundDaily.user.id = req.user._id
+                    foundDaily.user.username = req.user.username
+                    foundDaily.save()
+                    req.logout()
+                    res.redirect("/")
+            }
+        })
+    }
 })
 
 app.listen(3000,function(){

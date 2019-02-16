@@ -4,11 +4,32 @@
     <p>Welcome to your userpage <%=currentUser.username%></p> 
 </div>
 
-<%User.forEach(function(timer){%>
-    <% var timing = new Date(timer.timeIn) %>
-    <% var timingOut = new Date(timer.timeOut) %>
-    <p>Timed in at :<%=timing.toTimeString()%></p>
-    <p>Timed out at : <%=timingOut.toTimeString()%></p>
+<% User.forEach(function(timer){ %>
+    <% if(timer.timeIn){ %>
+        <% var timing = new Date(timer.timeIn) %>
+        <p>Timed in at :<%=timing.toTimeString()%></p>
+    <% } %>
+    
+    <% if(timer.timeOut){ %>
+        <% var timingOut = new Date(timer.timeOut) %> 
+           <p>Timed out at : <%=timingOut.toTimeString()%></p>
+   <% } %>
+    
 <%})%>
+
+
+<form method="POST" action="/change">
+    <label for="time-In" >Time in</label>
+    <input id ="time-in" type="number" name="timedInHours" min ="0" max="23" placeholder="Hours">
+    <input type="number" name="timedInSeconds" min ="0" max="60" placeholder="Minute">
+    
+    <div>
+    <label for ="time-out" >Time-out</label>
+    <input id ="time-out" type="number" name="timedOutHours" min ="0" max="23" placeholder="Hours">
+    <input type="number" name="timedOutSeconds" min ="0" max="60" placeholder="Minute">
+    </div>
+
+    <input type="submit" value = "submit">
+</form>
 
 <%include ./partials/footer%>

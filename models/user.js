@@ -13,6 +13,8 @@ var User = mongoose.model("User",userSchema);
 var dailySchema = new mongoose.Schema({
     timeIn:Number,
     timeOut:Number,
+    recTimedIn:Number,
+    recTimedOut:Number,
     user:{
         id:{
             type:mongoose.Schema.Types.ObjectId,
