@@ -6,7 +6,8 @@ var express                 = require("express"),
     LocalStrategy           = require("passport-local"),
     myFunction              = require("./models/user"),
     User                    = myFunction.User,
-    Daily                   = myFunction.Daily
+    Daily                   = myFunction.Daily,
+    Timely                  = myFunction.Timely
     
 mongoose.connect("mongodb://127.0.0.1/time", { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended:true}))
@@ -35,7 +36,19 @@ app.use(function(req,res,next){
 
 // LANDING PAGE
 app.get("/",function(req,res){
-    res.redirect("/home")
+    Timely.findOne({"user.username":"Admin"},function(err,foundTimely){
+        if(err){
+            console.log(err)
+        }else{
+            if(foundTimely){
+                global.recTimedIn = foundTimely.recTimedIn 
+                global.recTimedOut = foundTimely.recTimedOut
+                res.redirect("/home")
+            }else{
+                res.redirect("/home")
+            }
+        }  
+    })
 })
 
 app.get("/home",function(req,res){
@@ -44,28 +57,42 @@ app.get("/home",function(req,res){
 
 app.get("/user/:id",function(req,res){
     global.userIn = new Date(Date.now())
+    var time2 = global.userIn
+    var checker = time2.getHours() + ":" + time2.getMinutes()
+    var checker2 = global.recTimedIn
     global.username001 = req.user._id
 
-    if(global.userIn.getDay() > 7){
-       return res.redirect("/user/" + req.params.id + "/home")
-    } else {
-        var schema ={
-        timeIn:global.userIn,
-        }
-
-        Daily.create(schema, function (err, time) {
-            if (err) {
-                console.log(err)
+    if(checker2){
+        var x = 5 
+        if (x = !x) {
+            return res.redirect("/user/" + req.params.id + "/home")
+        } else {
+            var checker = checker.toString()
+            var checker3 = checker2.toString()
+            console.log(checker + " " + checker3)
+            if (checker < checker3) {
+                console.log("no problem here")
+                var schema = {
+                    timeIn: global.userIn,
+                }
+                Daily.create(schema, function (err, time) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log("almost done")
+                        time.user.id = global.username001
+                        time.user.username = req.user.username
+                        time.save()
+                        global.seq = time._id
+                        res.redirect("/user/" + req.params.id + "/home")
+                    }
+                })
             } else {
-                time.user.id = global.username001
-                time.user.username = req.user.username
-                time.save()
-                global.seq = time._id
-                res.redirect("/user/" + req.params.id + "/home")
-            }
-        })
+                res.redirect("/user/" + req.params.id + "/home")            }
+        }
+    }else{
+        res.redirect("/user/" + req.params.id + "/home")
     }
-    
 })
 
 app.get("/user/:id/home",function(req,res){
@@ -79,16 +106,27 @@ app.get("/user/:id/home",function(req,res){
 })
 
 app.post("/change", function (req, res) {
-    var timedIn = req.body.timedInHours +":" + req.body.timedInSeconds
-    var timedOut = req.body.timedOutHours +":" + req.body.timedOutSeconds
-    Daily.find({"user.username":"Admin"},function(err,foundUser){
+    var timedIn = (req.body.timedInHours +":" + req.body.timedInMinute).toString()
+    var timedOut = (req.body.timedOutHours +":" + req.body.timedOutMinute).toString()
+    var schema = {
+        recTimedIn:timedIn,
+        recTimedOut:timedOut
+    }
+    Timely.deleteMany({},function(err,deletedMany){
         if(err){
             console.log(err)
         }else{
-            foundUser.recTimedIn = timedIn
-            foundUser.recTimedOut = timedOut
-            console.log("this is the change route" +  foundUser)
-            res.redirect("back")
+            Timely.create(schema,function(err,CreatedUser){
+                if(err){
+                    console.log(err)
+                }else{
+                    CreatedUser.user.id = req.user._id
+                    CreatedUser.user.username = req.user.username
+                    CreatedUser.save()
+                    console.log("this is the change route" +  CreatedUser)
+                    res.redirect("back")
+                }
+            })
         }
     })
 })

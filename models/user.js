@@ -6,6 +6,19 @@ var userSchema = new mongoose.Schema({
     password:String,
 });
 
+var timelySchema = new mongoose.Schema({
+    recTimedIn:String,
+    recTimedOut:String,
+    user: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        username: String
+    }
+})
+var Timely = mongoose.model("Timely",timelySchema)
+
 userSchema.plugin(passportLocalMongoose);
 
 var User = mongoose.model("User",userSchema);
@@ -13,8 +26,6 @@ var User = mongoose.model("User",userSchema);
 var dailySchema = new mongoose.Schema({
     timeIn:Number,
     timeOut:Number,
-    recTimedIn:Number,
-    recTimedOut:Number,
     user:{
         id:{
             type:mongoose.Schema.Types.ObjectId,
@@ -30,5 +41,6 @@ var Daily = mongoose.model("Daily",dailySchema)
 
 module.exports = {
     Daily,
-    User
+    User,
+    Timely
 }

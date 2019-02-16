@@ -17,19 +17,21 @@
     
 <%})%>
 
-
-<form method="POST" action="/change">
-    <label for="time-In" >Time in</label>
-    <input id ="time-in" type="number" name="timedInHours" min ="0" max="23" placeholder="Hours">
-    <input type="number" name="timedInSeconds" min ="0" max="60" placeholder="Minute">
+<% if(currentUser.username == "Admin"){ %>
+    <form method="POST" action="/change">
+        <label for="time-In">Time in</label>
+        <input id="time-in" type="number" name="timedInHours" min="0" max="23" placeholder="Hours">
+        <input type="number" name="timedInMinute" min="0" max="60" placeholder="Minute">
     
-    <div>
-    <label for ="time-out" >Time-out</label>
-    <input id ="time-out" type="number" name="timedOutHours" min ="0" max="23" placeholder="Hours">
-    <input type="number" name="timedOutSeconds" min ="0" max="60" placeholder="Minute">
-    </div>
+        <div>
+            <label for="time-out">Time-out</label>
+            <input id="time-out" type="number" name="timedOutHours" min="0" max="23" placeholder="Hours">
+            <input type="number" name="timedOutMinute" min="0" max="60" placeholder="Minute">
+        </div>
+    
+        <input type="submit" value="submit">
+    </form>
 
-    <input type="submit" value = "submit">
-</form>
+<% } %>
 
 <%include ./partials/footer%>
